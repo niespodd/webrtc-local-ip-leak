@@ -6,7 +6,7 @@ A demo page that reveals local IP address(es) from [RTCIceCandidate.foundation](
 
 For more information and the demo: [https://niespodd.github.io/webrtc-local-ip-leak/](https://niespodd.github.io/webrtc-local-ip-leak/)
 
-## Cross-selling
+## 🛒 Cross-selling
 
 You may also be interested in: 
 * [Avoiding bot detection: How to scrape the web without getting blocked? 👨‍🔧
