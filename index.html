@@ -48,12 +48,26 @@
         <h1 class="text-2xl font-bold pb-2">
             WebRTC Local IP Leak Test 🍌
         </h1>
+
         <p>
-            This script uses a pregenerated <a class="underline text-blue-500" href="https://developer.mozilla.org/en-US/docs/Web/API/RTCIceCandidate/foundation">foundation</a>
+            This script uses a pregenerated <a class="underline text-blue-500"
+                                               href="https://developer.mozilla.org/en-US/docs/Web/API/RTCIceCandidate/foundation">foundation</a>
             lookup table to find local IP address for ICE candidates that render random local hostnames seen as <code>xx-xxx-xxx-xx.local</code>.
         </p>
 
-        <div id="test" class="bg-slate-100 rounded-md my-6 py-4 lg:py-6 px-2 lg:px-4">
+        <div class="flex flex-row mt-[1rem] gap-x-[.5rem]">
+            <a class="github-button" href="https://github.com/niespodd/webrtc-local-ip-leak"
+               data-color-scheme="no-preference: light; light: light; dark: dark;" data-icon="octicon-star"
+               data-size="large" data-show-count="true"
+               aria-label="Star niespodd/webrtc-local-ip-leak on GitHub">Star</a>
+            <a class="github-button" href="https://github.com/niespodd/webrtc-local-ip-leak/issues"
+               data-color-scheme="no-preference: light; light: light; dark: dark;" data-icon="octicon-issue-opened"
+               data-size="large" data-show-count="true"
+               aria-label="Issue niespodd/webrtc-local-ip-leak on GitHub">Issue</a>
+        </div>
+
+
+        <div id="test" class="bg-slate-100 rounded-md mb-6 mt-4 py-4 lg:py-6 px-2 lg:px-4">
             <button id="actionButton"
                     class="bg-emerald-500 hover:bg-emerald-600 w-full rounded shadow-xs text-white font-medium py-[.75rem]">
                 Begin test
@@ -148,7 +162,9 @@
 </div>
 
 <div class="text-center py-[.5rem] text-white text-sm flex flex-row gap-x-[1rem] items-center justify-center">
-    <a href="https://github.com/niespodd/webrtc-local-ip-leak/" class="underline">Source code</a> <a href="https://github.com/niespodd/" class="underline">Author</a>
+    <a href="https://github.com/niespodd/webrtc-local-ip-leak/" class="underline">Source code</a> <a
+        href="https://github.com/niespodd/" class="underline">Author</a>
 </div>
+<script async defer src="https://buttons.github.io/buttons.js"></script>
 </body>
 </html>
