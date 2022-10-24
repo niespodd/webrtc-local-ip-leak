@@ -1,0 +1,154 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebRTC Local IP Leak Test 🍌 - github.com/niespodd/webrtc-local-ip-leak</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet"
+          href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/styles/default.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <link rel="preconnect" href="https://rsms.me/">
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <style>
+        body, html {
+            font-family: 'Inter var', 'Inter', sans-serif;
+        }
+
+        th {
+            font-weight: 600 !important;
+            text-align: left;
+        }
+
+        #candidatesTable {
+            font-size: 14px;
+        }
+
+        #candidatesTable td, th {
+            padding: .5rem 1rem;
+            vertical-align: top;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        #candidatesTable tbody td {
+            font-size: 13px;
+        }
+
+        pre {
+            font-size: 13px !important;
+        }
+    </style>
+    <script src="/main.js"></script>
+</head>
+<body class="bg-slate-800">
+<div class="flex items-center justify-center py-[2rem] px-[1rem]">
+    <div class="bg-white rounded shadow-sm border border-slate-100 px-[1rem] lg:px-[2rem] py-[1.5rem] w-full max-w-[400px] lg:max-w-[580px]">
+        <h1 class="text-2xl font-bold pb-2">
+            WebRTC Local IP Leak Test 🍌
+        </h1>
+        <p>
+            This script uses a dynamically generated <a class="underline text-blue-500"
+                                                        href="https://developer.mozilla.org/en-US/docs/Web/API/RTCIceCandidate/foundation">foundation</a>
+            lookup table to find local IP address for ICE candidates that render random local hostnames seen as <code>xx-xxx-xxx-xx.local</code>.
+        </p>
+
+        <div id="test" class="bg-slate-100 rounded-md my-6 py-4 lg:py-6 px-2 lg:px-4">
+            <button id="actionButton"
+                    class="bg-emerald-500 hover:bg-emerald-600 w-full rounded shadow-xs text-white font-medium py-[.75rem]">
+                Begin test
+            </button>
+
+            <div id="candidatesTable" class="hidden">
+                <table class="w-full table-fixed bg-white rounded overflow-hidden">
+                    <thead>
+                    <tr class="text-sm">
+                        <th class="border-slate-200 w-[7rem]">
+                            Foundation
+                        </th>
+                        <th>
+                            IP Address
+                        </th>
+                        <th class="w-[6rem]">
+                            Protocol
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody id="candidates"></tbody>
+                </table>
+            </div>
+
+            <div id="lookupStats" class="rounded hidden mt-[1rem] py-[.25rem] px-[.5rem] text-sm"></div>
+
+            <div role="status" class="hidden mt-[1.5rem]" id="loading">
+                <svg aria-hidden="true"
+                     class="w-16 h-16 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600 mx-auto"
+                     viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                          fill="currentColor"/>
+                    <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                          fill="currentFill"/>
+                </svg>
+                <div id="loadingStatus" class="text-slate-800 text-center pt-4 text-sm">Loading...</div>
+            </div>
+        </div>
+
+        <h2 class="font-bold text-xl pb-2">
+            Background
+        </h2>
+        <p>
+            Modern browsers hide user's local IP address by returning a <code>[rand].local</code> placeholder resulting
+            in many popular test websites such as <a href="https://browserleaks.com/webrtc"
+                                                     class="text-blue-500 underline">BrowserLeaks WebRTC Leak Test</a>
+            showing no "Local IP Address".</p>
+        <p class="pt-[.5rem]">
+            Similarly creators of <a class="text-blue-500 underline"
+                                     href="https://github.com/niespodd/browser-fingerprinting#available-stealth-browsers-with-automation-features">the
+            (useless) stealth browsers</a> typically mask local IP by merely swapping the address parameter in the RTC
+            report and sometimes setting a random <code>foundation</code>. This allows anti-bot vendors to easily
+            pinpoint the malicious visitors using these type of solutions.
+        </p>
+
+        <p class="pt-[.75rem] pb-[.25rem]">
+            A reference <code>libwebrtc</code> implementation <code><a class="text-blue-500 underline"
+                                                                       href="https://github.com/mozilla/libwebrtc/blob/04a109ab593bfb3b5cf42607cac95f6070dc6f50/p2p/base/port.cc#L99">p2p/base/port.cc#L99</a></code>
+            takes a local IP address along with used protocol and type and calculates a CRC32:
+        </p>
+        <pre>
+<code class="language-cpp">std::string Port::ComputeFoundation(const std::string& type,
+    const std::string& protocol,
+    const std::string& relay_protocol,
+    const rtc::SocketAddress& base_address) {
+    rtc::StringBuilder sb;
+    sb << type
+        << base_address.ipaddr().ToString()
+        << protocol
+        << relay_protocol;
+    return rtc::ToString(rtc::ComputeCrc32(sb.Release()));
+}
+</code>
+        </pre>
+
+        <p>
+            The test above uses <a href="lookup.json" class="text-blue-500 underline">a mapping of over 600'000
+            hashes</a> for <a
+                href="https://www.ibm.com/docs/en/networkmanager/4.2.0?topic=translation-private-address-ranges"
+                class="text-blue-500 underline" rel="noreferrer nofollow">local IP ranges</a> to corresponding
+            parameters. In a production environment this mapping would be rather stored server-side.
+        </p>
+
+        <h2 class="font-bold text-xl pt-[.75rem]">
+            Footnotes 🔐
+        </h2>
+        <p>
+            This website does not collect, send or store your data. With a small exception for ICE candidate gathering
+            where public STUN server from Google is used.
+        </p>
+    </div>
+</div>
+
+<div class="text-center py-[.5rem] text-white text-sm flex flex-row gap-x-[1rem] items-center justify-center">
+    <a href="https://github.com/niespodd/" class="underline">Source code</a> <a href="https://github.com/niespodd/" class="underline">Author</a>
+</div>
+</body>
+</html>
