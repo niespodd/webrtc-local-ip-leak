@@ -19,6 +19,8 @@ async function streamToArrayBuffer(stream) {
 }
 
 onmessage = async function ({data}) {
+    console.log('worker recv', data);
+
     if (data.method === "loadLookup") {
         postMessage({
             method: "loadLookupComplete",

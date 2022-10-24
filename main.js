@@ -88,7 +88,7 @@ window.addEventListener('load', () => {
                         🧬 Address <span class="font-medium">${candidate.result.address}</span>,
                             protocol <span class="font-medium">${candidate.result.protocol.toUpperCase()}</span>,
                             type <span class="font-medium">${candidate.result.type}</span>
-                        ${candidate.result.address.startsWith("192") ? `
+                        ${candidate.result.address.startsWith("172") ? `
                             <br />
                             <div class="mt-[.5rem] text-xs font-medium bg-red-50 rounded py-[.25rem] px-[.5rem] w-max">
                                 🚨 &nbsp; This may be a local subnet for WSL, but no guarantee
@@ -137,6 +137,7 @@ window.addEventListener('load', () => {
             setTimeout(() => worker.postMessage({method: "loadLookup"}), 500);
             await new Promise((resolve, reject) => {
                 const handleMessage = ({data}) => {
+                    console.log('main recv', data);
                     if (data.method === "loadLookupComplete") {
                         lookupStats.classList.remove('hidden');
                         lookupStats.innerHTML = `✅ Used ${new Intl.NumberFormat().format(data.count)} keys for lookups`;
