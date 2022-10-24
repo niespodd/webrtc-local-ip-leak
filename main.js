@@ -106,7 +106,7 @@ window.addEventListener('load', () => {
             updateTable();
 
             setLoadingStatus("Load lookup tables...");
-            const worker = new Worker('/worker.js');
+            const worker = new Worker('worker.js');
             setTimeout(() => worker.postMessage({method: "loadLookup"}), 500);
             await new Promise((resolve, reject) => {
                 const handleMessage = ({data}) => {
