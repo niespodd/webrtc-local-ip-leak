@@ -2,7 +2,7 @@ let lookupTable = {};
 
 onmessage = async function ({data}) {
     if (data.method === "loadLookup") {
-        const res = await fetch('/lookup.json');
+        const res = await fetch('lookup.json');
         const text = await res.text();
         for (const row of text.split("\n")) {
             const [foundation, paramsRaw] = row.split("=");
