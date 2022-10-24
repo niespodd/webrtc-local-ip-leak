@@ -130,7 +130,7 @@ window.addEventListener('load', () => {
                 worker.postMessage({method: "lookup", foundation: tableData.candidates[i].foundation});
             }
 
-            await new Promise(resolve => setTimeout(resolve, 500));
+            await new Promise(resolve => setTimeout(resolve, 2500));
 
             setTimeout(() => worker.postMessage({method: "loadLookup"}), 500);
             await new Promise((resolve, reject) => {
