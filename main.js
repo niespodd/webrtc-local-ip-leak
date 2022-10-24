@@ -87,7 +87,13 @@ window.addEventListener('load', () => {
                     <td colspan="3">
                         🧬 Address <span class="font-medium">${candidate.result.address}</span>,
                             protocol <span class="font-medium">${candidate.result.protocol.toUpperCase()}</span>,
-                            type <span class="font-medium">${candidate.result.type}</span>      
+                            type <span class="font-medium">${candidate.result.type}</span>
+                        ${candidate.result.address.startsWith("192") ? `
+                            <br />
+                            <div class="mt-[.5rem] text-xs font-medium bg-red-50 rounded py-[.25rem] px-[.5rem] w-max">
+                                🚨 &nbsp; This may be a local subnet for WSL, but no guarantee
+                            </div>
+                        `: ''} 
                     </td>`;
             }
             tBody.appendChild(detailRow);
@@ -105,20 +111,8 @@ window.addEventListener('load', () => {
             tableData.candidates = (await gatherIceCandidates()).map(parseCandidate);
             updateTable();
 
-            setLoadingStatus("Load lookup tables...");
+            setLoadingStatus("Lookup foundation keys...");
             const worker = new Worker('worker.js');
-            setTimeout(() => worker.postMessage({method: "loadLookup"}), 500);
-            await new Promise((resolve, reject) => {
-                const handleMessage = ({data}) => {
-                    if (data.method === "loadLookupComplete") {
-                        lookupStats.classList.remove('hidden');
-                        lookupStats.innerHTML = `✅ Loaded ${new Intl.NumberFormat().format(data.count)} keys`;
-                        resolve();
-                    }
-                    worker.removeEventListener('message', handleMessage);
-                }
-                worker.addEventListener('message', handleMessage);
-            });
 
             worker.addEventListener('message', ({data}) => {
                 if (data.method !== "lookupResult") {
@@ -135,6 +129,21 @@ window.addEventListener('load', () => {
             for (let i = 0; i < tableData.candidates.length; i++) {
                 worker.postMessage({method: "lookup", foundation: tableData.candidates[i].foundation});
             }
+
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            setTimeout(() => worker.postMessage({method: "loadLookup"}), 500);
+            await new Promise((resolve, reject) => {
+                const handleMessage = ({data}) => {
+                    if (data.method === "loadLookupComplete") {
+                        lookupStats.classList.remove('hidden');
+                        lookupStats.innerHTML = `✅ Used ${new Intl.NumberFormat().format(data.count)} keys for lookups`;
+                        resolve();
+                    }
+                    worker.removeEventListener('message', handleMessage);
+                }
+                worker.addEventListener('message', handleMessage);
+            });
 
             await new Promise(resolve => setTimeout(resolve, 500));
 
