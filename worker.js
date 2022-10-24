@@ -1,4 +1,4 @@
-importScripts('https://unpkg.com/fflate');
+importScripts('https://unpkg.com/fflate@0.7.4/umd/index.js');
 
 let lookupTable = {};
 
