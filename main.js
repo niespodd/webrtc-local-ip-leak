@@ -114,6 +114,8 @@ window.addEventListener('load', () => {
             setLoadingStatus("Lookup foundation keys...");
             const worker = new Worker('worker.js');
 
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
             worker.addEventListener('message', ({data}) => {
                 if (data.method !== "lookupResult") {
                     return;
