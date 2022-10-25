@@ -18,7 +18,11 @@ const gatherIceCandidates = () => {
         rtc.onicecandidate = (entry) => {
             candidates.push(entry.candidate);
             if (rtc.iceGatheringState === 'complete') {
-                resolve(candidates.filter(Boolean).map(entry => entry.candidate));
+                resolve(candidates
+                    .filter(Boolean)
+                    .map(entry => entry.candidate)
+                    .filter(Boolean)
+                );
                 clearTimeout(id);
             }
         }
