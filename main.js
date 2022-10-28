@@ -1,41 +1,28 @@
 const gatherIceCandidates = () => {
-    return new Promise((resolve, reject) => {
+    return new Promise(async resolve => {
         let candidates = [];
-        const rtc = new (window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection)({
-            iceServers: [
-                {
-                    url: "stun:stun.l.google.com:19302"
-                }
-            ]
-        });
+        const rtc = new RTCPeerConnection();
+
         rtc.createDataChannel("");
-        rtc.createOffer((desc) => {
-            rtc.setLocalDescription(desc);
-        }, () => { // noop
-        });
+        const offer = await rtc.createOffer();
+        await rtc.setLocalDescription(offer);
 
-        const id = setTimeout(() => reject("ICE gathering timed out"), 12000);
-        rtc.onicecandidate = (entry) => {
-            candidates.push(entry.candidate);
-            if (rtc.iceGatheringState === 'complete') {
-                resolve(candidates
-                    .filter(Boolean)
-                    .map(entry => entry.candidate)
-                    .filter(Boolean)
-                );
-                clearTimeout(id);
+        const id = setTimeout(() => {
+            rtc.onicecandidate = null;
+            resolve(candidates);
+        }, 12000);
+        rtc.onicecandidate = (event) => {
+            if (!event.candidate) {
+                resolve(candidates);
+                return clearTimeout(id);
             }
-        }
+            candidates.push({
+                foundation: event.candidate.foundation,
+                protocol: event.candidate.protocol,
+                address: event.candidate.address,
+            });
+        };
     });
-}
-
-const parseCandidate = (candidate = '') => {
-    const chunks = candidate.split(" ");
-    return {
-        foundation: chunks[0].split(":")[1],
-        protocol: chunks[2],
-        address: chunks[4],
-    }
 }
 
 window.addEventListener('load', () => {
@@ -112,7 +99,7 @@ window.addEventListener('load', () => {
             actionButton.style.display = 'none';
 
             setLoadingStatus("Gather ICE candidates...");
-            tableData.candidates = (await gatherIceCandidates()).map(parseCandidate);
+            tableData.candidates = await gatherIceCandidates();
             updateTable();
 
             setLoadingStatus("Lookup foundation keys...");
